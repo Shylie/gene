@@ -40,6 +40,7 @@ project "genelang"
 
 project "gene"
 	language "C++"
+	openmp "On"
 
 	location "%{wks.location}/%{prj.name}"
 	targetdir "%{wks.location}/bin/%{prj.name}/%{cfg.buildcfg}"

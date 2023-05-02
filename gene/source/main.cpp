@@ -5,15 +5,18 @@
 #include <raylib.h>
 
 constexpr int N = 100;
-constexpr int PIXEL = 10;
-constexpr int LIMIT = 100;
+constexpr int PIXEL = 7;
+constexpr int LIMIT = 125;
+constexpr int LARGE_FPS = 9999;
 
 int main()
 {
-	InitWindow(PIXEL * N, PIXEL * N, "gene");
-	//SetTargetFPS(60);
+	int target = LARGE_FPS;
 
-	grid g(N, N, 1000, 32, setupList());
+	InitWindow(PIXEL * N, PIXEL * N, "gene");
+	SetTargetFPS(target);
+
+	grid g(N, N, 500, 128, setupList());
 
 	int frame = 0;
 	int generation = 0;
@@ -22,20 +25,23 @@ int main()
 	{
 		return i.position().x % 2;
 	};
-	//const auto& selection = [](const indiv& i, void* ud) { return i.position().x >= N - 2; };
-
-	for (; generation < 0; generation++)
-	{
-		for (frame = 0; frame < LIMIT; frame++)
-		{
-			g.update();
-		}
-		grid tmp(g, (g.random().rand() % 10) == 0, nullptr, selection);
-		g = tmp;
-	}
 
 	while (!WindowShouldClose())
 	{
+		if (IsKeyPressed(KEY_SPACE))
+		{
+			if (target > 10)
+			{
+				target = 10;
+			}
+			else
+			{
+				target = LARGE_FPS;
+			}
+
+			SetTargetFPS(target);
+		}
+
 		g.update();
 
 		BeginDrawing();
@@ -43,13 +49,14 @@ int main()
 
 		g.draw(PIXEL);
 
-		DrawText(TextFormat("%d %d", generation, frame++), 20, 20, 20, GREEN);
+		DrawText(TextFormat("%d %d", generation, frame), 20, 20, 20, GREEN);
 
 		EndDrawing();
 
+		frame++;
 		if (frame >= LIMIT - 1)
 		{
-			grid tmp(g, (g.random().rand() % 10) == 0, nullptr, selection);
+			grid tmp(g, (g.random().rand() % 25) == 0, nullptr, selection);
 			g = tmp;
 
 			frame = 0;

@@ -76,7 +76,7 @@ grid& grid::operator=(const grid& g)
 
 	for (indiv& i : indivs)
 	{
-		i.grid = this;
+		i.gridref = this;
 	}
 
 	return *this;
@@ -104,9 +104,21 @@ genelang::random& grid::random()
 
 void grid::update()
 {
-	for (indiv& i : indivs)
+	#pragma omp parallel default(shared)
 	{
-		i.genome(&i, this);
+		#pragma omp for
+		for (int i = 0; i < indivs.size(); i++)
+		{
+			indivs[i].genome(&indivs[i], this);
+		}
+
+		#pragma omp single
+		while (!stepActions.empty())
+		{
+			const auto& front = stepActions.front();
+			front.second(this, front.first);
+			stepActions.pop();
+		}
 	}
 }
 
@@ -115,6 +127,14 @@ void grid::draw(unsigned int pixels) const
 	for (size_t i = 0; i < indivs.size(); i++)
 	{
 		DrawRectangle(indivs[i].current.x * pixels, indivs[i].current.y * pixels, pixels, pixels, RED);
+	}
+}
+
+void grid::queue(indiv* i, void (*action)(grid* g, indiv*)) const
+{
+	#pragma omp critical
+	{
+		stepActions.push(std::make_pair(i, action));
 	}
 }
 

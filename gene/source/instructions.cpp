@@ -87,6 +87,15 @@ std::vector<genelang::instruction>& setupList()
 			s.push(dist);
 		});
 
+	list.emplace_back("logical negate", 1, 1,
+		[](std::stack<int>& s, void*, const void*)
+		{
+			const bool a = s.top();
+			s.pop();
+
+			s.push(!a);
+		});
+
 	list.emplace_back("add", 2, 1,
 		[](std::stack<int>& s, void*, const void*)
 		{
@@ -203,11 +212,10 @@ std::vector<genelang::instruction>& setupList()
 			static_cast<indiv*>(i)->turnright();
 		});
 
-	list.emplace_back("move", 0, 1,
+	list.emplace_back("move", 0, 0,
 		[](std::stack<int>& s, void* i, const void*)
 		{
-			const bool result = static_cast<indiv*>(i)->move();
-			s.push(result);
+			static_cast<indiv*>(i)->move();
 		});
 
 	list.emplace_back("turn left if", 1, 0,

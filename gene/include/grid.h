@@ -2,6 +2,7 @@
 #define GRID_H
 
 #include <vector>
+#include <queue>
 #include <genelang.h>
 
 class indiv;
@@ -92,7 +93,7 @@ public:
 	void update();
 	void draw(unsigned int scale) const;
 
-	void create(size_t max);
+	void queue(indiv*, void (*action)(grid*, indiv*)) const;
 
 private:
 	unsigned int width;
@@ -105,8 +106,11 @@ private:
 	size_t max;
 	std::vector<genelang::instruction> list;
 
+	mutable std::queue<std::pair<indiv*, void (*)(grid*, indiv*)>> stepActions;
+
 	genelang::random rand;
 
+	void create(size_t max);
 	void create(unsigned int tries, indiv&);
 };
 
