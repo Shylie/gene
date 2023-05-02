@@ -12,12 +12,123 @@ std::vector<genelang::instruction>& setupList()
 
 	list.emplace_back("no operation", 0, 0, [](std::stack<int>&, void*, const void*) {});
 
-	list.emplace_back("my position", 0, 2,
-		[](std::stack<int>& s, void* i, const void*)
+	list.emplace_back("distance to nearest object", 0, 1,
+		[](std::stack<int>& s, void* _i, const void* _g)
 		{
-			const coordinate c = static_cast<indiv*>(i)->position();
-			s.push(c.x);
-			s.push(c.y);
+			indiv* const i = static_cast<indiv*>(_i);
+			const grid* const g = static_cast<const grid*>(_g);
+
+			int dist = 0;
+			for (coordinate pos = i->front(); g->inside(pos) && (*g)[pos] == -1; pos = pos + i->direction())
+			{
+				dist++;
+			}
+
+			s.push(dist);
+		});
+
+	list.emplace_back("distance to left wall", 0, 1,
+		[](std::stack<int>& s, void* _i, const void* _g)
+		{
+			indiv* const i = static_cast<indiv*>(_i);
+			const grid* const g = static_cast<const grid*>(_g);
+
+			int dist = 0;
+			for (coordinate pos = i->position(); g->inside(pos); pos = pos + coordinate{ -1, 0 })
+			{
+				dist++;
+			}
+
+			s.push(dist);
+		});
+
+	list.emplace_back("distance to right wall", 0, 1,
+		[](std::stack<int>& s, void* _i, const void* _g)
+		{
+			indiv* const i = static_cast<indiv*>(_i);
+			const grid* const g = static_cast<const grid*>(_g);
+
+			int dist = 0;
+			for (coordinate pos = i->position(); g->inside(pos); pos = pos + coordinate{ 1, 0 })
+			{
+				dist++;
+			}
+
+			s.push(dist);
+		});
+
+	list.emplace_back("distance to up wall", 0, 1,
+		[](std::stack<int>& s, void* _i, const void* _g)
+		{
+			indiv* const i = static_cast<indiv*>(_i);
+			const grid* const g = static_cast<const grid*>(_g);
+
+			int dist = 0;
+			for (coordinate pos = i->position(); g->inside(pos); pos = pos + coordinate{ 0, -1 })
+			{
+				dist++;
+			}
+
+			s.push(dist);
+		});
+
+	list.emplace_back("distance to down wall", 0, 1,
+		[](std::stack<int>& s, void* _i, const void* _g)
+		{
+			indiv* const i = static_cast<indiv*>(_i);
+			const grid* const g = static_cast<const grid*>(_g);
+
+			int dist = 0;
+			for (coordinate pos = i->position(); g->inside(pos); pos = pos + coordinate{ 0, 1 })
+			{
+				dist++;
+			}
+
+			s.push(dist);
+		});
+
+	list.emplace_back("add", 2, 1,
+		[](std::stack<int>& s, void*, const void*)
+		{
+			const int b = s.top();
+			s.pop();
+			const int a = s.top();
+			s.pop();
+
+			s.push(a + b);
+		});
+
+	list.emplace_back("subtract", 2, 1,
+		[](std::stack<int>& s, void*, const void*)
+		{
+			const int b = s.top();
+			s.pop();
+			const int a = s.top();
+			s.pop();
+
+			s.push(a - b);
+		});
+
+	list.emplace_back("greater than", 2, 1,
+		[](std::stack<int>& s, void*, const void*)
+		{
+			const int b = s.top();
+			s.pop();
+			const int a = s.top();
+			s.pop();
+
+			s.push(a > b);
+		});
+
+	list.emplace_back("less than", 2, 1,
+		[](std::stack<int>& s, void*, const void*)
+		{
+			const int b = s.top();
+			s.pop();
+			const int a = s.top();
+			s.pop();
+
+			s.push(a < b);
 		});
 
 	list.emplace_back("my facing", 0, 2,

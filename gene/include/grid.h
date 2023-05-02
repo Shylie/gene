@@ -29,6 +29,12 @@ struct coordinate
 		x(rand.rand() % 3 - 1),
 		y(rand.rand() % 3 - 1)
 	{
+		while (x == 0 && y == 0)
+		{
+			x = rand.rand() % 3 - 1;
+			y = rand.rand() % 3 - 1;
+		}
+
 		if (x != 0 && y != 0)
 		{
 			if (rand.rand() % 2 == 0)
@@ -72,7 +78,7 @@ class grid
 {
 public:
 	grid(unsigned int width, unsigned int height, unsigned int cnt, size_t max, std::vector<genelang::instruction>& list);
-	grid(grid& previousGeneration, unsigned int tries, bool (*)(const indiv&));
+	grid(grid& previousGeneration, unsigned int tries, void* ud, bool (*)(const indiv&, void*));
 
 	grid& operator=(const grid&);
 

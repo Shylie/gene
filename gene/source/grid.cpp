@@ -21,7 +21,7 @@ grid::grid(unsigned int w, unsigned int h, unsigned int cnt, size_t max, std::ve
 	}
 }
 
-grid::grid(grid& pg, unsigned int tries, bool (*selector)(const indiv&)) :
+grid::grid(grid& pg, unsigned int tries, void* ud, bool (*selector)(const indiv&, void* data)) :
 	indices(pg.width * pg.height),
 	width(pg.width),
 	height(pg.height),
@@ -36,17 +36,27 @@ grid::grid(grid& pg, unsigned int tries, bool (*selector)(const indiv&)) :
 	std::vector<size_t> survived;
 	for (unsigned int i = 0; i < cnt; i++)
 	{
-		if (selector(pg.indivs[i]))
+		if (selector(pg.indivs[i], ud))
 		{
 			survived.push_back(i);
 		}
 	}
 
-	while (indivs.size() < cnt)
+	if (survived.size() > 0)
 	{
-		for (size_t i = 0; i < survived.size() && indivs.size() < cnt; i++)
+		while (indivs.size() < cnt)
 		{
-			create(tries, pg.indivs[survived[i]]);
+			for (size_t i = 0; i < survived.size() && indivs.size() < cnt; i++)
+			{
+				create(tries, pg.indivs[survived[i]]);
+			}
+		}
+	}
+	else
+	{
+		for (indiv& i : pg.indivs)
+		{
+			create(tries, i);
 		}
 	}
 }
