@@ -13,8 +13,8 @@ grid::grid(unsigned int w, unsigned int h, unsigned int cnt, size_t max, std::ve
 	rand()
 {
 	std::fill(indices.begin(), indices.end(), -1);
-	indivs.reserve(cnt);
 
+	indivs.reserve(cnt);
 	for (unsigned int i = 0; i < cnt; i++)
 	{
 		create(max);
@@ -31,7 +31,6 @@ grid::grid(grid& pg, unsigned int tries, void* ud, bool (*selector)(const indiv&
 	rand(pg.rand)
 {
 	std::fill(indices.begin(), indices.end(), -1);
-	indivs.reserve(cnt);
 
 	std::vector<size_t> survived;
 	for (unsigned int i = 0; i < cnt; i++)
@@ -42,6 +41,7 @@ grid::grid(grid& pg, unsigned int tries, void* ud, bool (*selector)(const indiv&
 		}
 	}
 
+	indivs.reserve(cnt);
 	if (survived.size() > 0)
 	{
 		while (indivs.size() < cnt)
@@ -82,12 +82,12 @@ grid& grid::operator=(const grid& g)
 	return *this;
 }
 
-int& grid::operator[](coordinate c)
+atomic_int_ext& grid::operator[](coordinate c)
 {
 	return indices[c.x + width * c.y];
 }
 
-int grid::operator[](coordinate c) const
+const atomic_int_ext& grid::operator[](coordinate c) const
 {
 	return indices[c.x + width * c.y];
 }
@@ -109,15 +109,7 @@ void grid::update()
 		#pragma omp for
 		for (int i = 0; i < indivs.size(); i++)
 		{
-			indivs[i].genome(&indivs[i], this);
-		}
-
-		#pragma omp single
-		while (!stepActions.empty())
-		{
-			const auto& front = stepActions.front();
-			front.second(this, front.first);
-			stepActions.pop();
+			indivs[i](this);
 		}
 	}
 }
@@ -127,14 +119,6 @@ void grid::draw(unsigned int pixels) const
 	for (size_t i = 0; i < indivs.size(); i++)
 	{
 		DrawRectangle(indivs[i].current.x * pixels, indivs[i].current.y * pixels, pixels, pixels, RED);
-	}
-}
-
-void grid::queue(indiv* i, void (*action)(grid* g, indiv*)) const
-{
-	#pragma omp critical
-	{
-		stepActions.push(std::make_pair(i, action));
 	}
 }
 

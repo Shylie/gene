@@ -1,8 +1,9 @@
 #ifndef GRID_H
 #define GRID_H
 
+#include <atomic>
 #include <vector>
-#include <queue>
+
 #include <genelang.h>
 
 class indiv;
@@ -75,6 +76,29 @@ inline static bool operator==(coordinate a, coordinate b)
 	return a.x == b.x && a.y == b.y;
 }
 
+class atomic_int_ext : public std::atomic_int
+{
+public:
+	inline atomic_int_ext() :
+		std::atomic_int()
+	{ }
+
+	inline atomic_int_ext(const int o) :
+		std::atomic_int(o)
+	{ }
+
+	inline atomic_int_ext(const atomic_int_ext& o) :
+		atomic_int_ext(o.load())
+	{ }
+
+	inline atomic_int_ext& operator=(const atomic_int_ext& o)
+	{
+		store(o.load());
+
+		return *this;
+	}
+};
+
 class grid
 {
 public:
@@ -83,8 +107,8 @@ public:
 
 	grid& operator=(const grid&);
 
-	int& operator[](coordinate);
-	int operator[](coordinate) const;
+	atomic_int_ext& operator[](coordinate);
+	const atomic_int_ext& operator[](coordinate) const;
 
 	bool inside(coordinate) const;
 
@@ -93,20 +117,19 @@ public:
 	void update();
 	void draw(unsigned int scale) const;
 
-	void queue(indiv*, void (*action)(grid*, indiv*)) const;
+	inline unsigned int getWidth() const { return width; }
+	inline unsigned int getHeight() const { return height; }
 
 private:
 	unsigned int width;
 	unsigned int height;
 	unsigned int cnt;
 
-	std::vector<int> indices;
+	std::vector<atomic_int_ext> indices;
 	std::vector<indiv> indivs;
 
 	size_t max;
 	std::vector<genelang::instruction> list;
-
-	mutable std::queue<std::pair<indiv*, void (*)(grid*, indiv*)>> stepActions;
 
 	genelang::random rand;
 

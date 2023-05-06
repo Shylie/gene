@@ -15,19 +15,31 @@ indiv::indiv(const indiv& i, grid* g, coordinate c, unsigned int tries, const st
 	genome(i.genome, tries, g->random(), list)
 { }
 
+void indiv::operator()(grid* g)
+{
+	genome(this, g);
+}
+
 void indiv::move()
 {
-	gridref->queue(this, move);
+	const coordinate dest = current + facing;
+	if ((*gridref).inside(dest) && (*gridref)[dest] == -1)
+	{
+		(*gridref)[dest] = (*gridref)[current];
+		(*gridref)[current] = -1;
+
+		current = current + facing;
+	}
 }
 
 void indiv::turnleft()
 {
-	gridref->queue(this, turnleft);
+	facing = facing.left();
 }
 
 void indiv::turnright()
 {
-	gridref->queue(this, turnright);
+	facing = facing.right();
 }
 
 coordinate indiv::position() const
@@ -58,26 +70,4 @@ coordinate indiv::right() const
 coordinate indiv::back() const
 {
 	return current + facing.reverse();
-}
-
-void indiv::move(grid* g, indiv* i)
-{
-	const coordinate dest = i->current + i->facing;
-	if ((*g).inside(dest) && (*g)[dest] == -1)
-	{
-		(*g)[dest] = (*g)[i->current];
-		(*g)[i->current] = -1;
-
-		i->current = i->current + i->facing;
-	}
-}
-
-void indiv::turnleft(grid* g, indiv* i)
-{
-	i->facing = i->facing.left();
-}
-
-void indiv::turnright(grid* g, indiv* i)
-{
-	i->facing = i->facing.right();
 }

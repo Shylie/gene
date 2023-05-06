@@ -14,6 +14,8 @@ public:
 
 	indiv(const indiv&) = default;
 
+	void operator()(grid*);
+
 	void move();
 	void turnleft();
 	void turnright();
@@ -26,16 +28,11 @@ public:
 	coordinate right() const;
 
 private:
-
-	const grid* gridref;
+	grid* gridref;
 	coordinate current;
 	coordinate facing;
 
 	genelang::meme genome;
-
-	static void move(grid*, indiv*);
-	static void turnleft(grid*, indiv*);
-	static void turnright(grid*, indiv*);
 };
 
 #endif//INDIV_H

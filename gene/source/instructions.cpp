@@ -27,64 +27,130 @@ std::vector<genelang::instruction>& setupList()
 			s.push(dist);
 		});
 
-	list.emplace_back("distance to left wall", 0, 1,
+	list.emplace_back("distance to facing wall", 0, 1,
 		[](std::stack<int>& s, void* _i, const void* _g)
 		{
 			indiv* const i = static_cast<indiv*>(_i);
 			const grid* const g = static_cast<const grid*>(_g);
 
-			int dist = 0;
-			for (coordinate pos = i->position(); g->inside(pos); pos = pos + coordinate{ -1, 0 })
+			if (i->direction().y == 0)
 			{
-				dist++;
+				if (i->direction().x == -1)
+				{
+					s.push(i->position().x);
+				}
+				else
+				{
+					s.push(g->getWidth() - i->position().x);
+				}
 			}
-
-			s.push(dist);
+			else
+			{
+				if (i->direction().y == -1)
+				{
+					s.push(i->position().y);
+				}
+				else
+				{
+					s.push(g->getHeight() - i->position().y);
+				}
+			}
 		});
 
-	list.emplace_back("distance to right wall", 0, 1,
+	list.emplace_back("distance to left facing wall", 0, 1,
 		[](std::stack<int>& s, void* _i, const void* _g)
 		{
 			indiv* const i = static_cast<indiv*>(_i);
 			const grid* const g = static_cast<const grid*>(_g);
 
-			int dist = 0;
-			for (coordinate pos = i->position(); g->inside(pos); pos = pos + coordinate{ 1, 0 })
-			{
-				dist++;
-			}
+			const coordinate c = i->direction().left();
 
-			s.push(dist);
+			if (c.y == 0)
+			{
+				if (c.x == -1)
+				{
+					s.push(i->position().x);
+				}
+				else
+				{
+					s.push(g->getWidth() - i->position().x);
+				}
+			}
+			else
+			{
+				if (c.y == -1)
+				{
+					s.push(i->position().y);
+				}
+				else
+				{
+					s.push(g->getHeight() - i->position().y);
+				}
+			}
 		});
 
-	list.emplace_back("distance to up wall", 0, 1,
+	list.emplace_back("distance to right facing wall", 0, 1,
 		[](std::stack<int>& s, void* _i, const void* _g)
 		{
 			indiv* const i = static_cast<indiv*>(_i);
 			const grid* const g = static_cast<const grid*>(_g);
 
-			int dist = 0;
-			for (coordinate pos = i->position(); g->inside(pos); pos = pos + coordinate{ 0, -1 })
-			{
-				dist++;
-			}
+			const coordinate c = i->direction().right();
 
-			s.push(dist);
+			if (c.y == 0)
+			{
+				if (c.x == -1)
+				{
+					s.push(i->position().x);
+				}
+				else
+				{
+					s.push(g->getWidth() - i->position().x);
+				}
+			}
+			else
+			{
+				if (c.y == -1)
+				{
+					s.push(i->position().y);
+				}
+				else
+				{
+					s.push(g->getHeight() - i->position().y);
+				}
+			}
 		});
 
-	list.emplace_back("distance to down wall", 0, 1,
+	list.emplace_back("distance to right facing wall", 0, 1,
 		[](std::stack<int>& s, void* _i, const void* _g)
 		{
 			indiv* const i = static_cast<indiv*>(_i);
 			const grid* const g = static_cast<const grid*>(_g);
 
-			int dist = 0;
-			for (coordinate pos = i->position(); g->inside(pos); pos = pos + coordinate{ 0, 1 })
-			{
-				dist++;
-			}
+			const coordinate c = i->direction().reverse();
 
-			s.push(dist);
+			if (c.y == 0)
+			{
+				if (c.x == -1)
+				{
+					s.push(i->position().x);
+				}
+				else
+				{
+					s.push(g->getWidth() - i->position().x);
+				}
+			}
+			else
+			{
+				if (c.y == -1)
+				{
+					s.push(i->position().y);
+				}
+				else
+				{
+					s.push(g->getHeight() - i->position().y);
+				}
+			}
 		});
 
 	list.emplace_back("logical negate", 1, 1,
